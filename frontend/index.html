@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Invoice Verification System</title>
+  <style>
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background: #f5f7fb;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      padding-top: 60px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 30px;
+      font-weight: 600;
+      color: #1d1d1f;
+    }
+
+    .container {
+      width: 420px;
+    }
+
+    .card {
+      background: white;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      border: 1px solid #e7e9ef;
+      transition: 0.25s ease;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.14);
+    }
+
+    .file-input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #d3d6dc;
+      background: #fafafa;
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+
+    .btn {
+      background: #007bff;
+      padding: 14px;
+      width: 100%;
+      border-radius: 10px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+      transition: 0.2s ease;
+    }
+    .btn:hover {
+      background: #005ad1;
+      transform: scale(1.02);
+    }
+
+    .result-box {
+      margin-top: 20px;
+      background: white;
+      padding: 18px;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      border: 1px solid #e5e5e5;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {opacity:0; transform: translateY(10px);}
+      to {opacity:1; transform: translateY(0);}
+    }
+
+    pre {
+      background: #f2f4f8;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      color: #2a2a2a;
+    }
+
+    a.download-btn {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      padding: 12px;
+      background: #28a745;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 4px 10px rgba(40,167,69,0.3);
+    }
+    a.download-btn:hover {
+      background:#1e8e39;
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <h1>AI Invoice Verification</h1>
+
+  <div class="card">
+    <input class="file-input" type="file" id="fileInput" />
+
+    <button class="btn" onclick="uploadInvoice()">Upload & Verify</button>
+
+    <div id="statusBox"></div>
+    <div id="downloadLink"></div>
+  </div>
+</div>
+
+<script>
+async function uploadInvoice() {
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) return alert("Please select a file!");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch("http://127.0.0.1:8000/upload-invoice", {
+    method: "POST",
+    body: formData
+  });
+
+  const data = await res.json();
+  const job_id = data.job_id;
+
+  document.getElementById("statusBox").innerHTML =
+    `<div class='result-box'>📝 Job Created: <b>${job_id}</b><br>⏳ Processing...</div>`;
+
+  checkStatus(job_id);
+}
+
+async function checkStatus(job_id) {
+  const interval = setInterval(async () => {
+    const res = await fetch(`http://127.0.0.1:8000/invoice-status/${job_id}`);
+    const data = await res.json();
+
+    if (!data.status) return;
+
+    document.getElementById("statusBox").innerHTML = `
+      <div class='result-box'>
+        🔎 <b>Status:</b> ${data.status}<br>
+        🎯 <b>Score:</b> ${data.verification_score || "Processing..."}
+        ${data.extracted ? `<pre>${JSON.stringify(data.extracted, null, 2)}</pre>` : ""}
+      </div>
+    `;
+
+    if (data.status !== "RUNNING" && data.status !== "RETRYING") {
+      clearInterval(interval);
+
+      document.getElementById("downloadLink").innerHTML = `
+        <a class="download-btn"
+           href="http://127.0.0.1:8000/invoice-status/${job_id}?download=true">
+           📄 Download PDF Report
+        </a>`;
+    }
+  }, 2000);
+}
+</script>
+
+</body>
+</html>
