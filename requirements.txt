@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+python-multipart
+easyocr
+torch
+transformers
+reportlab
+pillow
+numpy

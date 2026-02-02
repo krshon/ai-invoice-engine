@@ -1,175 +1,85 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Invoice Verification System</title>
-  <style>
-    body {
-      font-family: Inter, Arial, sans-serif;
-      background: #f5f7fb;
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      padding-top: 60px;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 2rem;
-      margin-bottom: 30px;
-      font-weight: 600;
-      color: #1d1d1f;
-    }
-
-    .container {
-      width: 420px;
-    }
-
-    .card {
-      background: white;
-      padding: 25px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
-      border: 1px solid #e7e9ef;
-      transition: 0.25s ease;
-    }
-    .card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 18px 40px rgba(0,0,0,0.14);
-    }
-
-    .file-input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: 1px solid #d3d6dc;
-      background: #fafafa;
-      margin-bottom: 15px;
-      cursor: pointer;
-    }
-
-    .btn {
-      background: #007bff;
-      padding: 14px;
-      width: 100%;
-      border-radius: 10px;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-      transition: 0.2s ease;
-    }
-    .btn:hover {
-      background: #005ad1;
-      transform: scale(1.02);
-    }
-
-    .result-box {
-      margin-top: 20px;
-      background: white;
-      padding: 18px;
-      border-radius: 14px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-      border: 1px solid #e5e5e5;
-      animation: fadeIn 0.3s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0; transform: translateY(10px);}
-      to {opacity:1; transform: translateY(0);}
-    }
-
-    pre {
-      background: #f2f4f8;
-      padding: 12px;
-      border-radius: 10px;
-      overflow-x: auto;
-      font-size: 0.9rem;
-      color: #2a2a2a;
-    }
-
-    a.download-btn {
-      display: block;
-      margin-top: 15px;
-      text-align: center;
-      padding: 12px;
-      background: #28a745;
-      border-radius: 8px;
-      color: white;
-      font-weight: 600;
-      text-decoration: none;
-      box-shadow: 0 4px 10px rgba(40,167,69,0.3);
-    }
-    a.download-btn:hover {
-      background:#1e8e39;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Invoice Verification System</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-<div class="container">
-  <h1>AI Invoice Verification</h1>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="2"/>
+                    <path d="M12 16L20 24L28 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Invoice Verifier</span>
+            </div>
+            <div class="header-badge">AI-Powered</div>
+        </header>
 
-  <div class="card">
-    <input class="file-input" type="file" id="fileInput" />
+        <main class="main-content">
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <svg class="upload-icon" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M32 8V40M32 8L20 20M32 8L44 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M52 40V52C52 54.2091 50.2091 56 48 56H16C13.7909 56 12 54.2091 12 52V40" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
+                    <h2>Upload Invoice for Verification</h2>
+                    <p>Drag & drop your invoice here, or click to browse</p>
+                    <p class="file-formats">Supports: PDF, JPG, PNG (Max 10MB)</p>
+                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" hidden>
+                    <button class="btn-primary" id="browseBtn">Browse Files</button>
+                </div>
+            </div>
 
-    <button class="btn" onclick="uploadInvoice()">Upload & Verify</button>
+            <div class="results-section hidden" id="resultsSection">
+                <div class="results-header">
+                    <h2>Verification Results</h2>
+                    <button class="btn-secondary" id="newVerificationBtn">New Verification</button>
+                </div>
 
-    <div id="statusBox"></div>
-    <div id="downloadLink"></div>
-  </div>
-</div>
+                <div class="verification-status" id="verificationStatus">
+                    <!-- Status will be injected by JS -->
+                </div>
 
-<script>
-async function uploadInvoice() {
-  const file = document.getElementById("fileInput").files[0];
-  if (!file) return alert("Please select a file!");
+                <div class="score-card" id="scoreCard">
+                    <!-- Score will be injected by JS -->
+                </div>
 
-  const formData = new FormData();
-  formData.append("file", file);
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <h3>Document Analysis</h3>
+                        <div class="detail-list" id="documentAnalysis">
+                            <!-- Analysis items will be injected by JS -->
+                        </div>
+                    </div>
 
-  const res = await fetch("http://127.0.0.1:8000/upload-invoice", {
-    method: "POST",
-    body: formData
-  });
+                    <div class="detail-card">
+                        <h3>Risk Indicators</h3>
+                        <div class="detail-list" id="riskIndicators">
+                            <!-- Risk items will be injected by JS -->
+                        </div>
+                    </div>
+                </div>
 
-  const data = await res.json();
-  const job_id = data.job_id;
+                <div class="explanation-card" id="explanationCard">
+                    <!-- Detailed explanation will be injected by JS -->
+                </div>
 
-  document.getElementById("statusBox").innerHTML =
-    `<div class='result-box'>📝 Job Created: <b>${job_id}</b><br>⏳ Processing...</div>`;
+                <div class="action-buttons">
+                    <button class="btn-download" id="downloadBtn">📄 Download PDF Report</button>
+                    <button class="btn-download-json" id="downloadJsonBtn">📊 Download JSON Data</button>
+                </div>
+            </div>
+        </main>
 
-  checkStatus(job_id);
-}
+        <footer class="footer">
+            <p>Powered by advanced AI document verification technology</p>
+        </footer>
+    </div>
 
-async function checkStatus(job_id) {
-  const interval = setInterval(async () => {
-    const res = await fetch(`http://127.0.0.1:8000/invoice-status/${job_id}`);
-    const data = await res.json();
-
-    if (!data.status) return;
-
-    document.getElementById("statusBox").innerHTML = `
-      <div class='result-box'>
-        🔎 <b>Status:</b> ${data.status}<br>
-        🎯 <b>Score:</b> ${data.verification_score || "Processing..."}
-        ${data.extracted ? `<pre>${JSON.stringify(data.extracted, null, 2)}</pre>` : ""}
-      </div>
-    `;
-
-    if (data.status !== "RUNNING" && data.status !== "RETRYING") {
-      clearInterval(interval);
-
-      document.getElementById("downloadLink").innerHTML = `
-        <a class="download-btn"
-           href="http://127.0.0.1:8000/invoice-status/${job_id}?download=true">
-           📄 Download PDF Report
-        </a>`;
-    }
-  }, 2000);
-}
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
