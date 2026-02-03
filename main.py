@@ -2,6 +2,8 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import uuid, os
+from fastapi.staticfiles import StaticFiles
+
 
 from worker import start_worker
 from queue_store import job_queue
@@ -9,6 +11,8 @@ from cache import status_cache
 from report_generator import generate_invoice_report
 
 app = FastAPI(title="Invoice OCR & Verification Engine")
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
+
 
 # --------- 🌐 ENABLE CORS for Frontend ---------
 app.add_middleware(
