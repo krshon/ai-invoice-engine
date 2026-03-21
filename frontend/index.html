@@ -1,88 +1,339 @@
 <!DOCTYPE html>
-<html lang="en">python -m venv venv
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Invoice Verification System</title>
+    <title>TrustInvoice — AI Invoice Verification System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/frontend/styles.css">
-
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <div class="logo">
-                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="2"/>
-                    <path d="M12 16L20 24L28 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span>Invoice Verifier</span>
-            </div>
-            <div class="header-badge">VERSION 1.6</div>
-        </header>
 
-        <main class="main-content">
-            <div class="upload-section" id="uploadSection">
-                <div class="upload-area" id="uploadArea">
-                    <svg class="upload-icon" width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M32 8V40M32 8L20 20M32 8L44 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M52 40V52C52 54.2091 50.2091 56 48 56H16C13.7909 56 12 54.2091 12 52V40" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                    </svg>
-                    <h2>Upload Invoice for Verification</h2>
-                    <p>Drag & drop your invoice here, or click to browse</p>
-                    <p class="file-formats">Supports: PDF, JPG, PNG (Max 10MB)</p>
-                    <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" hidden>
-                    <button class="btn-primary" id="browseBtn">Browse Files</button>
-                </div>
-            </div>
-
-            <div class="results-section hidden" id="resultsSection">
-                <div class="results-header">
-                    <h2>Verification Results</h2>
-                    <button class="btn-secondary" id="newVerificationBtn">New Verification</button>
-                </div>
-
-                <div class="verification-status" id="verificationStatus">
-                    <!-- Status will be injected by JS -->
-                </div>
-
-                <div class="score-card" id="scoreCard">
-                    <!-- Score will be injected by JS -->
-                </div>
-
-                <div class="details-grid">
-                    <div class="detail-card">
-                        <h3>Document Analysis</h3>
-                        <div class="detail-list" id="documentAnalysis">
-                            <!-- Analysis items will be injected by JS -->
-                        </div>
-                    </div>
-
-                    <div class="detail-card">
-                        <h3>Risk Indicators</h3>
-                        <div class="detail-list" id="riskIndicators">
-                            <!-- Risk items will be injected by JS -->
-                        </div>
-                    </div>
-                </div>
-
-                <div class="explanation-card" id="explanationCard">
-                    <!-- Detailed explanation will be injected by JS -->
-                </div>
-
-                <div class="action-buttons">
-                    <button class="btn-download" id="downloadBtn">📄 Download PDF Report</button>
-                    <button class="btn-download-json" id="downloadJsonBtn">📊 Download JSON Data</button>
-                </div>
-            </div>
-        </main>
-
-        <footer class="footer">
-            <p>created by krshon</p>
-        </footer>
+<!-- ═══════════════════════════════════════
+     BACKGROUND SCENE
+═══════════════════════════════════════ -->
+<div class="bg-scene" aria-hidden="true">
+    <div class="float-card fc-1">
+        <div class="fc-line fc-line--head"></div>
+        <div class="fc-line"></div><div class="fc-line fc-short"></div>
+        <div class="fc-sep"></div>
+        <div class="fc-row"><div class="fc-line fc-short"></div><div class="fc-line fc-xs"></div></div>
+        <div class="fc-row"><div class="fc-line fc-short"></div><div class="fc-line fc-xs"></div></div>
+        <div class="fc-sep"></div>
+        <div class="fc-badge fc-badge--green"></div>
     </div>
+    <div class="float-card fc-2">
+        <div class="fc-line fc-line--head"></div>
+        <div class="fc-line fc-short"></div>
+        <div class="fc-sep"></div>
+        <div class="fc-row"><div class="fc-line"></div><div class="fc-line fc-xs"></div></div>
+        <div class="fc-row"><div class="fc-line fc-short"></div><div class="fc-line fc-xs"></div></div>
+        <div class="fc-badge fc-badge--red"></div>
+    </div>
+    <div class="float-card fc-3">
+        <div class="fc-line fc-line--head"></div>
+        <div class="fc-line"></div>
+        <div class="fc-sep"></div>
+        <div class="fc-row"><div class="fc-line fc-short"></div><div class="fc-line fc-xs"></div></div>
+        <div class="fc-badge fc-badge--yellow"></div>
+    </div>
+    <div class="float-card fc-4">
+        <div class="fc-line fc-line--head"></div>
+        <div class="fc-line fc-short"></div>
+        <div class="fc-sep"></div>
+        <div class="fc-row"><div class="fc-line"></div><div class="fc-line fc-xs"></div></div>
+        <div class="fc-badge fc-badge--green"></div>
+    </div>
+    <div class="float-card fc-5">
+        <div class="fc-line fc-line--head"></div>
+        <div class="fc-line"></div><div class="fc-line fc-short"></div>
+        <div class="fc-sep"></div>
+        <div class="fc-badge fc-badge--red"></div>
+    </div>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+</div>
 
-    <script src="/frontend/script.js"></script>
+<!-- ═══════════════════════════════════════
+     MAIN CONTAINER
+═══════════════════════════════════════ -->
+<div class="container">
 
+    <!-- HEADER -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-mark">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 5h14M3 10h9M3 15h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    <circle cx="16" cy="14" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M14.5 14l1 1 2-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <span>TrustInvoice</span>
+        </div>
+
+        <nav class="header-nav">
+            <button class="nav-btn active" data-page="verify">Verify</button>
+            <button class="nav-btn" data-page="about">About</button>
+        </nav>
+
+        <div class="header-right">
+            <div class="header-badge">VERSION 1.6</div>
+            <div class="header-status">
+                <span class="status-dot"></span>
+                System Online
+            </div>
+        </div>
+    </header>
+
+    <!-- ═══ PAGE: VERIFY ═══ -->
+    <main class="main-content page-verify active-page" id="pageVerify">
+
+        <div class="upload-section" id="uploadSection">
+
+            <div class="upload-intro">
+                <h1>Invoice Verification</h1>
+                <p>Upload any invoice to instantly verify its authenticity using AI-powered document analysis.</p>
+            </div>
+
+            <div class="upload-area" id="uploadArea">
+
+                <div class="sample-section">
+                    <p class="sample-title">Try a sample invoice</p>
+                    <div class="sample-buttons">
+                        <button class="btn-sample" data-file="valid.png">
+                            <img src="/frontend/examples/valid.png" class="sample-preview">
+                            <span>Valid Example</span>
+                        </button>
+                        <button class="btn-sample" data-file="sample_fake.pdf">
+                            <img src="/frontend/examples/suspicious.png" class="sample-preview">
+                            <span>Suspicious Example</span>
+                        </button>
+                        <button class="btn-sample" data-file="sample_non_invoice.jpg">
+                            <img src="/frontend/examples/not_invoice.png" class="sample-preview">
+                            <span>Not Invoice</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="upload-divider"><span>or upload your own</span></div>
+
+                <div class="upload-icon-wrap">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M14 4V20M14 4L8 10M14 4L20 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M23 18V23C23 24.1046 22.1046 25 21 25H7C5.89543 25 5 24.1046 5 23V18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+
+                <h2>Drop your invoice here</h2>
+                <p>Drag & drop or click to browse your files</p>
+                <p class="file-formats">PDF, JPG, PNG &nbsp;·&nbsp; Maximum 10MB</p>
+
+                <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" hidden>
+
+                <button class="btn-primary" id="browseBtn">
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                        <path d="M2 11l3-3 3 3 5-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Select File
+                </button>
+            </div>
+
+            <div class="trust-strip">
+                <div class="trust-item">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>256-bit encryption</span>
+                </div>
+                <div class="trust-item">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Files never stored</span>
+                </div>
+                <div class="trust-item">
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 7l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>AI-powered analysis</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS SECTION -->
+        <div class="results-section hidden" id="resultsSection">
+
+            <div class="results-header">
+                <div>
+                    <p class="results-label">Analysis Complete</p>
+                    <h2>Verification Results</h2>
+                </div>
+                <button class="btn-secondary" id="newVerificationBtn">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7a5 5 0 1 0 1-2.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 3v2h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    New Verification
+                </button>
+            </div>
+
+            <div class="verification-status" id="verificationStatus"></div>
+            <div class="score-card" id="scoreCard"></div>
+
+            <div class="details-grid">
+                <div class="detail-card">
+                    <h3>
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x="2" y="1" width="11" height="13" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M5 5h5M5 8h5M5 11h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                        Document Analysis
+                    </h3>
+                    <div class="detail-list" id="documentAnalysis"></div>
+                </div>
+                <div class="detail-card">
+                    <h3>
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1.5L2 4v4c0 3 2.5 5.5 5.5 6 3-0.5 5.5-3 5.5-6V4L7.5 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                        Risk Indicators
+                    </h3>
+                    <div class="detail-list" id="riskIndicators"></div>
+                </div>
+            </div>
+
+            <div class="explanation-card" id="explanationCard"></div>
+
+            <div class="action-buttons">
+                <button class="btn-download" id="downloadBtn">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 2v8M4.5 7l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11v1.5A1.5 1.5 0 003.5 14h8a1.5 1.5 0 001.5-1.5V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Download PDF Report
+                </button>
+                <button class="btn-download-json" id="downloadJsonBtn">
+                    <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 2v8M4.5 7l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 11v1.5A1.5 1.5 0 003.5 14h8a1.5 1.5 0 001.5-1.5V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    Download JSON Data
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ═══ PAGE: ABOUT ═══ -->
+    <main class="main-content page-about" id="pageAbout">
+
+        <div class="about-hero">
+            <div class="about-hero-badge">About TrustInvoice</div>
+            <h1>Fighting invoice fraud<br>with artificial intelligence</h1>
+            <p>Every year, businesses lose billions to fraudulent invoices. TrustInvoice was built to give finance teams an instant, reliable second opinion — powered by AI.</p>
+        </div>
+
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="about-card-icon">
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <path d="M11 2L3 6v5c0 4.5 3.5 8.5 8 9.5 4.5-1 8-5 8-9.5V6L11 2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+                        <path d="M7.5 11l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h3>What it does</h3>
+                <p>TrustInvoice analyses uploaded invoice documents using multi-layer AI inspection — checking structure, metadata, fonts, numbering patterns, and image integrity to produce a fraud risk score.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-card-icon">
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <circle cx="11" cy="11" r="9" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M11 7v4l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h3>How it works</h3>
+                <p>Upload a PDF, JPG, or PNG. The AI engine runs structural analysis, cross-checks metadata timestamps, verifies font consistency, and inspects visual layers — all in under two seconds.</p>
+            </div>
+            <div class="about-card">
+                <div class="about-card-icon">
+                    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <rect x="3" y="3" width="16" height="16" rx="3" stroke="currentColor" stroke-width="1.6"/>
+                        <path d="M7 11h8M7 7h4M7 15h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <h3>What you get</h3>
+                <p>A clear verification score from 0–100, colour-coded risk indicators, a plain-language explanation of every finding, and downloadable PDF/JSON reports for your records.</p>
+            </div>
+        </div>
+
+        <div class="about-process">
+            <h2>The verification pipeline</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="ps-num">01</div>
+                    <div class="ps-content">
+                        <h4>Document Ingestion</h4>
+                        <p>File is parsed in-browser. Raw bytes are never transmitted to third-party servers.</p>
+                    </div>
+                </div>
+                <div class="ps-arrow">→</div>
+                <div class="process-step">
+                    <div class="ps-num">02</div>
+                    <div class="ps-content">
+                        <h4>AI Analysis</h4>
+                        <p>Structural, visual, and metadata checks run in parallel across 12+ detection signals.</p>
+                    </div>
+                </div>
+                <div class="ps-arrow">→</div>
+                <div class="process-step">
+                    <div class="ps-num">03</div>
+                    <div class="ps-content">
+                        <h4>Risk Scoring</h4>
+                        <p>Signals are weighted and combined into a 0–100 confidence score with a clear verdict.</p>
+                    </div>
+                </div>
+                <div class="ps-arrow">→</div>
+                <div class="process-step">
+                    <div class="ps-num">04</div>
+                    <div class="ps-content">
+                        <h4>Report</h4>
+                        <p>Downloadable PDF and JSON reports give your team a full audit trail.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-stats">
+            <div class="stat-item">
+                <div class="stat-num">12+</div>
+                <div class="stat-label">Detection signals</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">&lt;2s</div>
+                <div class="stat-label">Analysis time</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">0</div>
+                <div class="stat-label">Files stored</div>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <div class="stat-num">v1.6</div>
+                <div class="stat-label">Current version</div>
+            </div>
+        </div>
+
+        <div class="about-disclaimer">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <p>TrustInvoice is an AI-assisted tool and should be used as a supplementary check alongside your existing financial controls. For high-value transactions, always verify directly with the issuing company through independently confirmed contact details.</p>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>created by krshon</p>
+    </footer>
+
+</div>
+
+<script src="/frontend/script.js"></script>
+<script>
+document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const page = btn.dataset.page;
+        document.getElementById('pageVerify').classList.toggle('active-page', page === 'verify');
+        document.getElementById('pageAbout').classList.toggle('active-page', page === 'about');
+    });
+});
+</script>
 </body>
 </html>
