@@ -92,7 +92,7 @@ def invoice_status(job_id: str, download: bool = False):
         if not job["extracted"]:
             return {"error": "Result not ready yet"}
 
-        extracted_data = job["extracted"][0]
+        extracted_data = job["extracted"]
         extracted_data["verification_score"] = job.get("verification_score")
         extracted_data["status"] = job.get("status")
 
