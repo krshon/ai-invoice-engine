@@ -25,30 +25,32 @@ def gemini_extract(file_path):
 
 
     prompt = """
-You are an invoice fraud detection assistant.
+You are an invoice forensic analysis assistant.
 
 Analyze this invoice and return structured JSON.
 
-Extract:
+Extract core invoice fields:
 
 vendor
 invoice_no
 date
+subtotal
+tax
 total
+vendor_gst (if present)
 
-Then estimate fraud indicators (0–100 risk scale):
+Then detect structural anomalies:
 
-template_risk
-layout_risk
-font_risk
-arithmetic_risk
-metadata_risk
-vendor_risk
-generator_risk
+layout_anomalies → true/false
+font_inconsistencies → true/false
+metadata_missing → true/false
+duplicate_template_likelihood → true/false
+arithmetic_inconsistency_detected → true/false
+suspected_generator_patterns → true/false
 
 Then produce explainable forensic findings:
 
-reasons → list of short human-readable explanations
+reasons → short bullet explanations
 summary → 1 sentence verdict explanation
 
 Return ONLY valid JSON like:
@@ -57,15 +59,17 @@ Return ONLY valid JSON like:
   "vendor": "",
   "invoice_no": "",
   "date": "",
+  "subtotal": "",
+  "tax": "",
   "total": "",
+  "vendor_gst": "",
 
-  "template_risk": 0,
-  "layout_risk": 0,
-  "font_risk": 0,
-  "arithmetic_risk": 0,
-  "metadata_risk": 0,
-  "vendor_risk": 0,
-  "generator_risk": 0,
+  "layout_anomalies": false,
+  "font_inconsistencies": false,
+  "metadata_missing": false,
+  "duplicate_template_likelihood": false,
+  "arithmetic_inconsistency_detected": false,
+  "suspected_generator_patterns": false,
 
   "reasons": [],
   "summary": ""
