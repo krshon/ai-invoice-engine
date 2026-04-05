@@ -1,7 +1,5 @@
 import fitz  # PyMuPDF
 from PIL import Image, ImageEnhance
-from transformers import DonutProcessor, VisionEncoderDecoderModel
-import easyocr
 import io
 import json
 import re
@@ -12,17 +10,30 @@ import numpy as np
 # Load DONUT model
 # -------------------------
 
+# -------------------------
+# Lazy-load DONUT model
+# -------------------------
+
 MODEL_NAME = "naver-clova-ix/donut-base-finetuned-cord-v2"
 
-processor = DonutProcessor.from_pretrained(MODEL_NAME)
-model = VisionEncoderDecoderModel.from_pretrained(MODEL_NAME)
+processor = None
+model = None
+reader = None
+
+
+def load_models():
+    global processor, model
+
+    if processor is None:
+        from transformers import DonutProcessor, VisionEncoderDecoderModel
+
+        processor = DonutProcessor.from_pretrained(MODEL_NAME)
+        model = VisionEncoderDecoderModel.from_pretrained(MODEL_NAME)
 
 
 # -------------------------
 # Load EasyOCR fallback
 # -------------------------
-
-reader = easyocr.Reader(['en'], gpu=False)
 
 
 TASK_PROMPT = "<s>invoice information extraction</s>"
@@ -77,6 +88,13 @@ def normalize_fields(data):
 
 def hybrid_extract(img):
 
+    global reader
+
+    # Lazy-load EasyOCR only when fallback runs
+    if reader is None:
+        import easyocr
+        reader = easyocr.Reader(['en'], gpu=False)
+
     img_np = np.array(img)
 
     text_lines = reader.readtext(img_np, detail=False)
@@ -102,11 +120,8 @@ def hybrid_extract(img):
     ]
 
     for candidate in vendor_candidates:
-
         if "invoice" not in candidate.lower():
-
             vendor = candidate
-
             break
 
 
@@ -126,12 +141,13 @@ def hybrid_extract(img):
         "date": date.group(0) if date else None
     }
 
-
 # -------------------------
 # Main extraction function
 # -------------------------
 
 def donut_extract(file_path):
+
+    load_models()
 
     images = []
 
