@@ -11,3 +11,4 @@ torch
 sentencepiece
 accelerate
 easyocr
+google-generativeai
