@@ -9,7 +9,9 @@ def worker_loop(jobs_dict):
 
     while True:
 
+        print("Worker waiting for job...")
         job_id = job_queue.get()
+        print("Worker received job:", job_id)
 
         try:
 
@@ -32,7 +34,13 @@ def worker_loop(jobs_dict):
                     "vendor": gemini_data.get("vendor"),
                     "invoice_no": gemini_data.get("invoice_no"),
                     "date": gemini_data.get("date"),
-                    "total": gemini_data.get("total")
+                    "total": gemini_data.get("total"),
+                    "subtotal": gemini_data.get("subtotal"),
+                    "tax": gemini_data.get("tax"),
+                    "vendor_gst": gemini_data.get("vendor_gst"),
+                    "raw_text": str(gemini_data),
+                    "summary": gemini_data.get("summary", ""),
+                    "reasons": gemini_data.get("reasons", [])
                 }
 
                 job["extracted"] = extracted
@@ -71,19 +79,26 @@ def worker_loop(jobs_dict):
 
             # ================= FINAL VERIFICATION =================
 
-            result = verify_invoice(extracted)
-
-            job["verification_score"] = result["score"]
-            job["status"] = result["label"]
-
-# Preserve Gemini explanation
-            existing_summary = job.get("signals", {}).get("summary")
-            existing_reasons = job.get("signals", {}).get("reasons", [])
-
-            job["signals"] = result["signals"]
-
-            job["signals"]["summary"] = existing_summary
-            job["signals"]["reasons"] = existing_reasons
+            verification_input = job.get("extracted", {})
+            
+            result = verify_invoice(verification_input)
+            print("Verification result:", result)
+            
+            gemini_signals = job.get("signals", {})
+            job["verification_score"] = result.get("score", 0)
+            job["label"] = result.get("label", "UNKNOWN")
+            
+            merged_signals = result.get("signals", {})
+            
+            if gemini_signals.get("summary"):
+                merged_signals["summary"] = gemini_signals["summary"]
+                
+            if gemini_signals.get("reasons"):
+                merged_signals["reasons"] = gemini_signals["reasons"]
+                
+                job["signals"] = merged_signals
+                job["extracted"] = verification_input
+                job["status"] = "completed"
         except Exception as e:
 
             print("\n🚨 WORKER ERROR 🚨")

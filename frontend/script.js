@@ -89,6 +89,8 @@ async function processInvoice(file) {
 
         const data = await response.json();
 
+        console.log("UPLOAD RESPONSE JOB ID:", data.job_id);
+
         currentJobId = data.job_id;
 
         pollStatus(currentJobId);
@@ -105,40 +107,54 @@ let pollingInterval = null;
 
 function pollStatus(jobId) {
 
+    console.log("POLLING JOB ID:", jobId);
+
     if (pollingInterval) {
         clearInterval(pollingInterval);
     }
 
     pollingInterval = setInterval(async () => {
 
-        const res = await fetch(`/invoice-status/${jobId}`);
-        const job = await res.json();
+        try {
 
-        console.log("STATUS:", job.status);
+            const res = await fetch(`/invoice-status/${jobId}`);
+            const job = await res.json();
 
-        const finishedStates = [
-            "LIKELY LEGIT",
-            "NEEDS REVIEW",
-            "SUSPICIOUS / INCOMPLETE",
-            "FAILED"
-        ];
+            console.log("STATUS:", job.status);
 
-        if (finishedStates.includes(job.status)) {
+            if (job.status === "NOT_FOUND") {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
 
+                alert("Session expired. Please upload again.");
+                return;
+            }
+
+            if (job.status === "completed") {
+
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+
+                console.log("DISPLAYING RESULTS NOW");
+
+                displayResults(convertBackendResult(job));
+
+                return;
+            }
+
+        } catch (err) {
+
+            console.error("Polling error:", err);
             clearInterval(pollingInterval);
-            pollingInterval = null;
-
-            const formatted = convertBackendResult(job);
-            displayResults(formatted);
         }
 
     }, 1000);
-}// ================= BACKEND → UI FORMAT =================
+}
 
 function convertBackendResult(job) {
 
         console.log("Signals received:", job.signals);
-    const extracted = job.extracted || {};
+    const extracted = job.extracted ?? {};
     const signals = job.signals || {};
 
     let analysis = [];
@@ -187,16 +203,16 @@ function convertBackendResult(job) {
     }
 
     // Map backend label → UI style
-    let uiStatus = "suspicious";
+    let uiStatus = "fraudulent";
 
-    if (job.status === "LIKELY LEGIT") uiStatus = "authentic";
-    if (job.status === "NEEDS REVIEW") uiStatus = "suspicious";
-    if (job.status === "SUSPICIOUS / INCOMPLETE") uiStatus = "fraudulent";
-    if (job.status === "FAILED") uiStatus = "fraudulent";
+    if (job.label === "LIKELY LEGIT") uiStatus = "authentic";
+    if (job.label === "NEEDS REVIEW") uiStatus = "suspicious";
+    if (job.label === "SUSPICIOUS") uiStatus = "fraudulent";
+    if (job.label === "NOT AN INVOICE") uiStatus = "fraudulent";
 
     return {
         status: uiStatus,
-        score: job.verification_score ?? 50,
+        score: job.score ?? job.verification_score ?? 0,
         analysis,
         risks,
 explanation: {
@@ -230,7 +246,6 @@ explanation: {
 },
 
         extracted: extracted,
-        fileName: job.file_path
 
 };
 }// ================= DISPLAY RESULTS =================
@@ -245,6 +260,10 @@ function getItemIcon(type) {
     }[type] || "•";
 }
 function displayResults(result) {
+
+    console.log("DISPLAY RESULTS CALLED");
+
+    console.log("DISPLAY RESULTS CALLED", result);
 
     // ================= DOCUMENT ANALYSIS =================
 

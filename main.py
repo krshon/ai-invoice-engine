@@ -75,28 +75,41 @@ async def upload_invoice(file: UploadFile = File(...)):
 @app.get("/invoice-status/{job_id}")
 def invoice_status(job_id: str, download: bool = False):
 
-    if job_id not in jobs:
-        return {"error": "Job Not Found"}
+    job = jobs.get(job_id)
 
-    job = jobs[job_id]
+    if not job:
+        return {"status": "NOT_FOUND"}
 
-    # ⚠ Non-invoice handling
-    if job["status"] == "NOT_AN_INVOICE":
-        return job
-
-    # 📄 Generate PDF on demand
+    # 📄 Generate PDF if requested
     if download:
+        if job["status"] != "completed":
+            return {"error": "Result not ready yet"}
+
         os.makedirs("reports", exist_ok=True)
         output_path = f"reports/{job_id}.pdf"
 
-        if not job["extracted"]:
-            return {"error": "Result not ready yet"}
-
-        extracted_data = job["extracted"]
+        extracted_data = job.get("extracted", {})
         extracted_data["verification_score"] = job.get("verification_score")
-        extracted_data["status"] = job.get("status")
+        extracted_data["label"] = job.get("label")
 
         generate_invoice_report(job_id, extracted_data, output_path)
-        return {"message": "PDF generated", "download_path": output_path}
 
-    return job
+        return {
+            "status": "completed",
+            "download_path": output_path
+        }
+
+    # ✅ STOP polling once job completes
+    if job["status"] == "completed":
+        return {
+            "status": "completed",
+            "label": job.get("label"),
+            "score": job.get("verification_score"),
+            "signals": job.get("signals"),
+            "extracted": job.get("extracted")
+        }
+
+    # otherwise still processing
+    return {
+        "status": job["status"]
+    }
