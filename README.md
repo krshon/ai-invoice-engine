@@ -1,10 +1,43 @@
-## AI Invoice Verification System
+# AI Invoice Verification Pipeline (OCR + Fraud Detection + FastAPI)
 
-**Tech:** FastAPI, DONUT OCR, EasyOCR, Async Workers, Job Queue
+An asynchronous AI-powered invoice verification system that extracts structured invoice data using OCR models and detects fraud signals through rule-based validation and anomaly scoring.
 
-- Built an asynchronous invoice verification pipeline using FastAPI with
-  background workers and a job-queue for non-blocking processing.
-- Integrated DONUT Transformer with EasyOCR fallback for field extraction and
-  rule-based validation, generating credibility scores and risk labels.
-- Implemented live status polling and PDF audit report generation to deliver
-  an end-to-end document verification workflow.
+The system processes invoices concurrently using background workers and generates explainable risk reports to assist automated document verification workflows.
+
+🔗 **Live Demo:** *(ai-invoice-engine.onrender.com/)*  
+📂 **Sample Invoices:** `/samples` folder inside repo
+
+
+---
+
+# Key Features
+
+- Hybrid OCR extraction using **DONUT OCR + EasyOCR**
+- LLM-assisted structured data validation
+- Async processing pipeline using **FastAPI background workers**
+- Fraud detection engine with explainable risk scoring
+- Template reuse detection
+- Arithmetic inconsistency detection
+- Vendor anomaly detection
+- Automated verification report generation
+- Concurrent processing support for multiple invoices
+
+
+---
+
+# System Architecture
+Upload Invoice
+↓
+FastAPI Server
+↓
+Task Queue / Background Worker
+↓
+DONUT OCR + EasyOCR Extraction
+↓
+LLM Field Validation
+↓
+Fraud Detection Engine
+↓
+Risk Score + Report Generator
+↓
+Verification Output
